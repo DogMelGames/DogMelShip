@@ -1,0 +1,69 @@
+import pygame
+from menu import Menu, GameOver, Venceu
+from game import Game
+
+
+class Main:
+
+    def __init__(self):
+
+        pygame.init()
+
+        pygame.mixer.init()
+        pygame.mixer.music.load("projeto_dog.ogg")
+        pygame.mixer.music.play(-1)
+
+        self.window = pygame.display.set_mode([380, 680])
+        self.title = pygame.display.set_caption("DGMG SHIP")
+
+        self.loop = True
+        self.fps = pygame.time.Clock()
+
+        self.start_screen = Menu("tela_inicio.png")
+        self.game = Game()
+        self.gameover = GameOver("perdeu.png")
+        self.venceu = Venceu("ganhou.png")
+
+    def events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.loop = False
+            if not self.start_screen.change_scene:
+                self.start_screen.event(event)
+            elif not self.game.change_scene:
+                self.game.fusca.move_fusca(event)
+            elif not self.venceu.change_scene:
+                self.venceu.event(event)
+            else:
+                self.gameover.event(event)
+
+    def draw(self):
+        self.window.fill([0, 0, 0])
+        if not self.start_screen.change_scene:
+            self.start_screen.draw(self.window)
+
+        elif not self.game.change_scene:
+            self.game.draw(self.window)
+            self.game.update()
+        elif not self.gameover.change_scene:
+            self.gameover.draw(self.window)
+        elif not self.venceu.change_scene:
+            self.venceu.draw(self.window)
+        else:
+            self.start_screen.change_scene = False
+            self.game.change_scene = False
+            self.gameover.change_scene = False
+            self.venceu.change_scene = False
+            self.game.fusca.life = 3
+            self.game.fusca.pts = 0
+
+    def updates(self):
+
+        while self.loop:
+            self.fps.tick(30)
+            self.draw()
+            self.events()
+            pygame.display.update()
+
+
+Main().updates()
