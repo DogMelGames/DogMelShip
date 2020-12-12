@@ -1,0 +1,76 @@
+from obj import Obj, Fusca, Text
+import random
+
+
+class Game:
+
+    def __init__(self):
+
+        self.bg = Obj("fundo.png", 0, 0)
+        self.bg2 = Obj("fundo.png", 0, -680)
+
+        self.radio = Obj("osso_rad1.png", random.randrange(0, 300), -50)
+        self.osso_b= Obj("osso_bom1.png", random.randrange(0, 300), 200)
+        self.fusca = Fusca("fusca1.png", 150, 600)
+
+        self.change_scene = False
+
+        self.score = Text(120, "0")
+        self.lifes = Text(60, "3")
+
+    def draw(self, window):
+
+        self.bg.draw(window)
+        self.bg2.draw(window)
+        self.fusca.draw(window)
+        self.radio.draw(window)
+        self.osso_b.draw(window)
+        self.score.draw(window, 160, 50)
+        self.lifes.draw(window, 50, 50)
+
+    def update(self):
+
+        self.move_bg()
+        self.radio.anim("osso_rad", 8, 5)
+        self.osso_b.anim("osso_bom", 8, 3)
+        self.fusca.anim("fusca", 2, 5)
+        self.move_radio()
+        self.move_osso()
+        self.fusca.colision(self.radio.group, "OssoR")
+        self.fusca.colision(self.osso_b.group, "OssoB")
+        self.gameover()
+        self.venceu()
+        self.score.update_text(str(self.fusca.pts))
+        self.lifes.update_text(str(self.fusca.life))
+
+    def move_bg(self):
+        self.bg.sprite.rect[1] += 10
+        self.bg2.sprite.rect[1] += 10
+
+        if self.bg.sprite.rect[1] >= 680:
+            self.bg.sprite.rect[1] = 0
+
+        if self.bg2.sprite.rect[1] >= 0:
+            self.bg2.sprite.rect[1] = -680
+
+    def move_radio(self):
+        self.radio.sprite.rect[1] += 5
+
+        if self.radio.sprite.rect[1] > 700:
+            self.radio.sprite.kill()
+            self.radio = Obj("osso_rad1.png", random.randrange(0, 300), -10)
+
+    def move_osso(self):
+        self.osso_b.sprite.rect[1] += 6
+
+        if self.osso_b.sprite.rect[1] > 700:
+            self.osso_b.sprite.kill()
+            self.osso_b = Obj("osso_bom1.png", random.randrange(0, 300), -50)
+
+    def gameover(self):
+        if self.fusca.life <= 0:
+            self.change_scene = True
+
+    def venceu(self):
+        if self.fusca.pts >= 12:
+            self.change_scene = True
